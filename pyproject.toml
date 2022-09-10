@@ -1,0 +1,29 @@
+[build-system]
+requires = [
+    "setuptools>=61.0"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "decmore"
+version = "0.1.0"
+authors = [
+  {name="Daniel Trivelli", email="drtrivelli@example.com"},
+]
+description = "Useful decorators for your application."
+readme = "README.md"
+license = {file="LICENSE.md"}
+requires-python = ">=3.7"
+classifiers = [
+   "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Libraries"
+]

@@ -1,0 +1,9 @@
+.idea
+*.pyc
+*.pytest_cache/
+*.vscode/
+scripts/
+venv/
+dist/
+*.egg-info/
+
