@@ -11,7 +11,7 @@ _This decorator checks if the types of the variables sent are the same as the on
 Example:
 
 ```python
-from DecMore import CheckTypes
+from decmore import CheckTypes
 
 
 @CheckTypes
@@ -40,7 +40,7 @@ Example:
 
 ```python
 from time import sleep
-from DecMore import Profiler
+from decmore import Profiler
 
 
 @Profiler()
