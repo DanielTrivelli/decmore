@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 name = "decmore"
 version = "0.1.1"
 authors = [
-  {name="Daniel Trivelli", email="drtrivelli@example.com"},
+  {name="Daniel Trivelli", email="drtrivelli@gmail.com"},
 ]
 description = "Useful decorators for your application."
 readme = "README.md"
