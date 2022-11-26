@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "decmore"
-version = "0.1.1"
+version = "1.0.0"
 authors = [
   {name="Daniel Trivelli", email="drtrivelli@gmail.com"},
 ]
