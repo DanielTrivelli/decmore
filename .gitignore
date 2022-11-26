@@ -6,4 +6,7 @@ scripts/
 venv/
 dist/
 *.egg-info/
-
+private_utils/
+docs/_build/
+docs/_templates/
+*.bat
