@@ -5,7 +5,7 @@ DecMore
 .. image:: https://readthedocs.org/projects/decmore/badge/?version=latest
   :target: https://decmore.readthedocs.io/en/latest/
 .. image:: https://img.shields.io/pypi/v/decmore.svg
-  :target: https://pypi.python.org/pypi/demore
+  :target: https://pypi.python.org/pypi/decmore
 .. image:: https://img.shields.io/github/release-date/DanielTrivelli/decmore
   :target: https://github.com/DanielTrivelli/decmore
 .. image:: https://img.shields.io/pypi/pyversions/decmore.svg
