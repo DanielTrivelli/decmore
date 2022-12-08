@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from abc import abstractmethod
-from functools import partial
-from inspect import getsource, isclass
-from re import sub
 from typing import Any, Callable
+from abc import abstractmethod
+from inspect import isclass, getsource
+from functools import partial
+from re import sub
 
 
 class BaseDecorator(object):
@@ -14,6 +14,7 @@ class BaseDecorator(object):
     class_injection = True
     instance: Callable | None = None
     _traced_methods = {}
+    _imports = ''
     is_class = False
 
     def __init__(self, **kwargs: Any) -> None:
@@ -42,7 +43,6 @@ class BaseDecorator(object):
         for method in instance_methods:
             code_str = f'self.instance.{method}'
             this_method = eval(code_str)
-            self.params['inject'] = this_method
             self._traced_methods[method] = this_method
             _base = base_radar_str.format(method)
             if '@staticmethod' in getsource(this_method):
@@ -70,6 +70,26 @@ class BaseDecorator(object):
                         f"Works only on static methods"
                     )
         return self.instance if self.is_class else self.wrapper
+
+    def custom_eval(self, param_str: str, dot_split=False):
+        try:
+            if self._imports:
+                exec(self._imports)
+                self._imports = ''
+            param_type = eval(param_str)
+            return param_type
+        except NameError as error:
+            instance_file = self.instance.__globals__['__file__']
+            error_string = str(error)
+            if '__main__' not in error_string:
+                package_name = sub(r'NameError: | is not defined', '', error_string.split("'")[1])
+                imports = ''.join(
+                    [line for line in open(instance_file, 'r').readlines() if 'import' in line and package_name in line]
+                )
+                if 'from' in imports:
+                    imports = sub(r'import\s*\w*', '', imports).replace('from', 'import')
+                self._imports = imports
+                return self.custom_eval(param_str)
 
     @abstractmethod
     def wrapper(self, inject=None, *args: Any, **kwargs: Any) -> Callable:
