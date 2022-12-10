@@ -4,7 +4,7 @@ from abc import ABC
 from inspect import signature
 from typing import Any, Callable
 
-from decmore.default import BaseDecorator
+from .default import BaseDecorator
 
 
 class CheckTypes(BaseDecorator, ABC):

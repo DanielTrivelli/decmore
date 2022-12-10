@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from functools import partial
-from inspect import getsource, isclass
+from inspect import getsource, isclass, getmembers
 from re import sub
 from typing import Any, Callable
 
@@ -21,34 +21,38 @@ class BaseDecorator(object):
         if kwargs:
             self.__filter_params()
 
-    def overload_wrapper(self, inject, *args, **kwargs):
+    def overload_wrapper(self, inject=None, *args, **kwargs):
         return partial(self.wrapper, inject, *args, **kwargs)
 
+    def base_radar(self, _method, *args, **kwargs):
+        method, source_code = self._traced_methods[_method].values()
+
+        @self.overload_wrapper
+        def radar(self, *args, **kwargs):
+            if '*args' in source_code and '**kwargs' not in source_code:
+                return method(self, *args)
+            elif '*args' not in source_code and '**kwargs' in source_code:
+                return method(self, **kwargs)
+            return method(self, *args, **kwargs)
+
+        return partial(radar, self.instance, *args, **kwargs)
+
     def __injection(self) -> None:
-        default_disallowed = ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__',
-                              '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__',
-                              '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__',
-                              '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']
+        instance_methods = []
+        for attribute in dir(self.instance):
+            is_method = callable(getattr(self.instance, attribute))
+            allowed = attribute not in self.disallowed_methods and not attribute.startswith('__')
+            if (is_method and allowed) or attribute in self.allowed_methods:
+                instance_methods.append(attribute)
 
-        default_disallowed.extend(self.disallowed_methods)
-        default_disallowed = [x for x in default_disallowed if x not in self.allowed_methods]
-        instance_methods = [x for x in dir(self.instance) if x not in default_disallowed]
-
-        overload_wrapper = self.overload_wrapper
-
-        base_radar_str = """@overload_wrapper\ndef base_radar(self=self, *args, **kwargs):
-        return self._traced_methods["{}"](self, *args, **kwargs)
-        """
         for method in instance_methods:
             code_str = f'self.instance.{method}'
             this_method = eval(code_str)
-            self.params['inject'] = this_method
-            self._traced_methods[method] = this_method
-            _base = base_radar_str.format(method)
-            if '@staticmethod' in getsource(this_method):
-                _base = sub(r']\((self,\s)', '](', _base)
-            code_str += ' = base_radar'
-            exec(compile(_base, 'base_radar', 'exec'))
+            self._traced_methods[method] = {
+                "method": this_method,
+                "code": getsource(this_method)
+            }
+            code_str += f' = self.base_radar("{method}")'
             exec(compile(code_str, method, 'exec'))
 
     def __filter_params(self) -> None:
