@@ -27,4 +27,4 @@ class Profiler(BaseDecorator, ABC):
         ps = Stats(pr, stream=s).sort_stats("time")
         ps.print_stats()
         print(s.getvalue())
-        return retval
+        return retval 

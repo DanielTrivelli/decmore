@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from abc import abstractmethod
 from functools import partial
 from inspect import getsource, isclass, getmembers
@@ -42,7 +41,7 @@ class BaseDecorator(object):
         for attribute in dir(self.instance):
             is_method = callable(getattr(self.instance, attribute))
             allowed = attribute not in self.disallowed_methods and not attribute.startswith('__')
-            if (is_method and allowed) or attribute in self.allowed_methods:
+            if (is_method and allowed) or attribute in self.allowed_methods or attribute == '__init__':
                 instance_methods.append(attribute)
 
         for method in instance_methods:
@@ -73,12 +72,12 @@ class BaseDecorator(object):
                         f"try calling it in functions inside the desired class. "
                         f"Works only on static methods"
                     )
-        return self.instance if self.is_class else self.wrapper
+        return self.instance if self.is_class else self.overload_wrapper()
 
     @abstractmethod
     def wrapper(self, inject=None, *args: Any, **kwargs: Any) -> Callable:
         ...
 
     @abstractmethod
-    def __call__(self, instance: Callable) -> None | wrapper | update_instance:
+    def __call__(self, instance: Callable) -> None | overload_wrapper | update_instance:
         return self.update_instance(instance)
