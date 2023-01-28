@@ -3,12 +3,14 @@ from __future__ import annotations
 from abc import ABC
 from inspect import signature
 from typing import Any, Callable
-from base import BaseDecorator
+from re import match
+from .default import BaseDecorator
 
 
 class CheckTypes(BaseDecorator, ABC):
     def __init__(self):
         self.class_injection = False
+
         super(CheckTypes, self).__init__()
 
     def multiple_types(self, param_type: Any, param_value: Any, key: Any) -> str:
@@ -34,13 +36,17 @@ class CheckTypes(BaseDecorator, ABC):
                 param_value = kwargs[key]
             elif idx <= args_len and args_len >= 0:
                 param_value = args[idx]
+
             if "|" in param_type:
                 error_string = self.multiple_types(param_type, param_value, key)
-            elif param_type not in ["Any", "any"]:
+            elif not match(r'Any', param_type):
+                param_type_str = param_type
                 param_type = self.custom_eval(param_type)
-                if not isinstance(param_value, param_type):
+                if match(r'\s?<(function) | at \w*>', param_type_str):
+                    if not param_type == param_value:
+                        error_string = f"\nParam '{key}' Expected {param_type}, got {param_value} instead."
+                elif not isinstance(param_value, param_type):
                     error_string = f"\nParam '{key}' Expected {param_type}, got {type(param_value)} instead."
-
         return error_string
 
     def wrapper(self, *args: Any, **kwargs: Any) -> TypeError | Callable:

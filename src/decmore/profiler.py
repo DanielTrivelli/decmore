@@ -3,7 +3,7 @@ from cProfile import Profile
 from io import StringIO
 from pstats import Stats
 from typing import Callable, Any
-from decmore.default import BaseDecorator
+from .default import BaseDecorator
 
 
 class Profiler(BaseDecorator, ABC):

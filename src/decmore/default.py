@@ -15,6 +15,7 @@ class BaseDecorator(object):
     instance: Callable | None = None
     _traced_methods = {}
     _imports = ''
+    _unsupported_counter = 0
     is_class = False
 
     def __init__(self, **kwargs: Any) -> None:
@@ -77,17 +78,33 @@ class BaseDecorator(object):
                 exec(self._imports)
                 self._imports = ''
             param_type = eval(param_str)
+            self._unsupported_counter = 0
             return param_type
-        except NameError as error:
+        except (NameError, SyntaxError) as error:
+            self._unsupported_counter += 1
+            if self._unsupported_counter > 1:
+                raise NotImplementedError(
+                    f"Type '{param_str.replace(' ', '').replace('~', '')}' has not been implemented"
+                    f" or isn't working properly.\n"
+                    f"Please open an issue in: https://github.com/DanielTrivelli/decmore/issues"
+                )
             instance_file = self.instance.__globals__['__file__']
             error_string = str(error)
             if '__main__' not in error_string:
-                package_name = sub(r'NameError: | is not defined', '', error_string.split("'")[1])
-                imports = ''.join(
-                    [line for line in open(instance_file, 'r').readlines() if 'import' in line and package_name in line]
-                )
-                if 'from' in imports:
-                    imports = sub(r'import\s*\w*', '', imports).replace('from', 'import')
+                is_syntax_error = isinstance(error, SyntaxError)
+                if is_syntax_error:
+                    package_name = sub(r'\s?<(function) | at \w*>', '', error.args[1][3])
+                    param_str = package_name
+                else:
+                    package_name = sub(r'NameError: | is not defined', '', error_string.split("'")[1])
+                param_object = param_str.split('.')[-1]
+                import_list = []
+                for line in open(instance_file, 'r').readlines():
+                    if 'import' in line and package_name in line and param_object in line:
+                        import_list.append(line)
+                imports = ''.join(import_list)
+                if not is_syntax_error and 'from' in imports:
+                    imports = sub(r'\s?import(\s\w*,?)*', '', imports).replace('from', 'import')
                 self._imports = imports
                 return self.custom_eval(param_str)
 
