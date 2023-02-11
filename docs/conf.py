@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'DecMore'
-copyright = '2022, Daniel Trivelli'
+copyright = '2023, Daniel Trivelli'
 author = 'Daniel Trivelli'
-release = '1.0.0'
+release = '1.0.1'
 
 extensions = [
     'sphinx.ext.duration',

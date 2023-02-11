@@ -10,3 +10,5 @@ private_utils/
 docs/_build/
 docs/_templates/
 *.bat
+.coverage
+htmlcov/
