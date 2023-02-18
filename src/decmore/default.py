@@ -77,15 +77,16 @@ class BaseDecorator(object):
                     )
         return self.instance if self.is_class else self.overload_wrapper()
 
-    def custom_eval(self, param_str: str, dot_split=False):
+    def custom_eval(self, param_str: str):
         try:
+            param_str = param_str.removeprefix(' ')
             if self._imports:
                 exec(self._imports)
                 self._imports = ''
             param_type = eval(param_str)
             self._unsupported_counter = 0
-            return param_type
-        except (NameError, SyntaxError) as error:
+            return param_type, str(param_type)
+        except (NameError, AttributeError) as error:
             self._unsupported_counter += 1
             if self._unsupported_counter > 1:
                 raise NotImplementedError(
@@ -96,26 +97,33 @@ class BaseDecorator(object):
             instance_file = self.instance.__globals__['__file__']
             error_string = str(error)
             if '__main__' not in error_string:
-                is_syntax_error = isinstance(error, SyntaxError)
-                if is_syntax_error:
-                    package_name = sub(r'\s?<(function) | at \w*>', '', error.args[1][3])
-                    param_str = package_name
-                else:
-                    package_name = sub(r'NameError: | is not defined', '', error_string.split("'")[1])
+                package_name = sub(r'NameError: | is not defined', '', error_string.split("'")[1])
                 param_object = param_str.split('.')[-1]
                 import_list = []
-                for line in open(instance_file, 'r').readlines():
+                file = open(instance_file, 'r')
+                for line in file.readlines():
                     if 'import' in line and package_name in line and param_object in line:
                         import_list.append(line)
+                file.close()
                 imports = ''.join(import_list)
-                if not is_syntax_error and 'from' in imports:
-                    imports = sub(r'\s?import(\s\w*,?)*', '', imports).replace('from', 'import')
-                self._imports = imports
+                if imports:
+                    module = imports.split(' ')[1].replace('\n', '')
+                    if module not in param_str:
+                        param_str = f"{module}.{param_str}"
+
+                    if 'from' in imports:
+                        imports = sub(r'\s?import(\s\w*,?)*', '', imports).replace('from', 'import')
+
+                    self._imports = imports
+                else:
+                    root, module = instance_file.split('\\')[-2:]
+                    module = module.replace('.py', '')
+                    param_str = f'{root}.{module}.{param_str}'
+                    self._imports = f'import {root}.{module}'
                 return self.custom_eval(param_str)
 
     @abstractmethod
-    def wrapper(self, inject=None, *args: Any, **kwargs: Any) -> Callable:
-        ...
+    def wrapper(self, inject=None, *args: Any, **kwargs: Any) -> Callable: ...
 
     @abstractmethod
     def __call__(self, instance: Callable) -> None | overload_wrapper | update_instance:
