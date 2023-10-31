@@ -28,7 +28,8 @@ class BaseDecorator(object):
         default_disallowed = ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__',
                               '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__',
                               '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__',
-                              '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']
+                              '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__',
+                              '__getstate__']
 
         default_disallowed.extend(self.disallowed_methods)
         default_disallowed = [x for x in default_disallowed if x not in self.allowed_methods]
@@ -37,7 +38,7 @@ class BaseDecorator(object):
         overload_wrapper = self.overload_wrapper
 
         base_radar_str = """@overload_wrapper\ndef base_radar(self=self, *args, **kwargs):
-        return self._traced_methods["{}"](self, *args, **kwargs)
+        return self._traced_methods["{}"](self.instance, *args, **kwargs)
         """
         for method in instance_methods:
             code_str = f'self.instance.{method}'
@@ -46,7 +47,7 @@ class BaseDecorator(object):
             self._traced_methods[method] = this_method
             _base = base_radar_str.format(method)
             if '@staticmethod' in getsource(this_method):
-                _base = sub(r']\((self,\s)', '](', _base)
+                _base = sub(r']\((self.instance,\s)', '](', _base)
             code_str += ' = base_radar'
             exec(compile(_base, 'base_radar', 'exec'))
             exec(compile(code_str, method, 'exec'))
