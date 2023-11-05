@@ -14,6 +14,9 @@ description = "Useful decorators for your application."
 readme = "README.md"
 license = {file="LICENSE.md"}
 requires-python = ">=3.7"
+dependencies = [
+    "numpy~=1.26.1",
+]
 classifiers = [
    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
