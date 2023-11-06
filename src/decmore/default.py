@@ -24,9 +24,9 @@ class BaseDecorator(object):
         if kwargs:
             self.__filter_params()
 
-    def _create_id(self, *args, **kwargs) -> str:
-        random_idx = randint(0, 1025)
-        key = f"{str(id(self.instance))}-{random_idx}-{args}-{kwargs}".encode('utf-8')
+    def _create_id(self, args, kwargs, random_idx=True) -> str:
+        idx = randint(0, 1025) if random_idx else 0
+        key = f"{str(id(self.instance))}-{idx}-{args}-{kwargs}".encode('utf-8')
         return md5(key).hexdigest()
 
     def __set_instance_id(self):

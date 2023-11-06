@@ -77,7 +77,7 @@ class ToThreads(BaseDecorator, ABC):
     def __set_threads(self, *args, **kwargs) -> dict[str, Thread]:
         work = self.__divide_work_between_threads(*args, **kwargs)
         for t in range(self.amount):
-            thread_key = self._create_id(*args, **kwargs)
+            thread_key = self._create_id(args, kwargs)
             mod_args, mod_kwargs = work[t].values()
             mod_kwargs[self._instance_id] = thread_key
             self.__threads[thread_key] = Thread(target=self.__thread, args=mod_args, kwargs=mod_kwargs)
