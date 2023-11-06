@@ -5,6 +5,8 @@ from functools import partial
 from inspect import getsource, isclass
 from re import sub
 from typing import Any, Callable
+from hashlib import md5
+from random import randint
 
 
 class BaseDecorator(object):
@@ -12,14 +14,23 @@ class BaseDecorator(object):
     allowed_methods = []
     disallowed_methods = []
     class_injection = True
-    instance: Callable | None = None
+    instance: Callable = None
     _traced_methods = {}
+    _instance_id: str = None
     is_class = False
 
     def __init__(self, **kwargs: Any) -> None:
         self.params: dict | None = kwargs
         if kwargs:
             self.__filter_params()
+
+    def _create_id(self, *args, **kwargs) -> str:
+        random_idx = randint(0, 1025)
+        key = f"{str(id(self.instance))}-{random_idx}-{args}-{kwargs}".encode('utf-8')
+        return md5(key).hexdigest()
+
+    def __set_instance_id(self):
+        self._instance_id = str(id(self.instance))
 
     def overload_wrapper(self, inject, *args, **kwargs):
         return partial(self.wrapper, inject, *args, **kwargs)
@@ -78,4 +89,5 @@ class BaseDecorator(object):
 
     @abstractmethod
     def __call__(self, instance: Callable) -> None | wrapper | update_instance:
+        self.__set_instance_id()
         return self.update_instance(instance)
