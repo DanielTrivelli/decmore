@@ -62,6 +62,7 @@ Here are the functions that are included in this property:
     * __str__
     * __subclasshook__
     * __weakref__
+    * __getstate__
 
 If you want some to be overwritten, add them to the ``allowed_methods`` property
 
@@ -117,7 +118,7 @@ Usage
 Profiler
 ===============
 The Profiler decorator helps the developer to analyze the performance of his code by showing on the console, in order of time, which functions and lines took longer to execute.
-Accepts to be instantiated in classes and can receive the ``allowed_methods`` and ``disallowed_methods`` attributes.
+Accepts to be instantiated in classes and can receive the ``allowed_methods`` and ``disallowed_methods`` parameters.
 
 .. code-block:: python
 
@@ -140,3 +141,43 @@ Accepts to be instantiated in classes and can receive the ``allowed_methods`` an
 
         def post(self):
             ...
+
+ToThreads
+===============
+The ToThreads decorator divides up the work for a set number of threads when it is instantiated.
+Receive ``amount`` and ``return_expected`` parameters.
+This decorator only works on functions, when instantiated under a class it will return an error saying that it supports functions and that it can be instantiated in static functions inside the class
+
+Parameters:
+
+* amount:
+    Number of threads that will be created and executed
+
+* return_expected:
+    If the function returns something, this parameter should be changed to True, since the default value is False.
+
+.. code-block:: python
+
+    from time import sleep
+    from decmore import ToThreads
+
+
+    @ToThreads(amount=2, return_expected=True)
+    def test_threads(v):
+        return [x * 10 for x in v]
+
+Cache
+===============
+The Cache decorator saves the return of the function so that it is not executed if the parameters result in the same return.
+This decorator only works on functions, when instantiated under a class it will return an error saying that it supports functions and that it can be instantiated in static functions inside the class
+
+
+.. code-block:: python
+
+    from time import sleep
+    from decmore import ToThreads
+
+
+    @Cache()
+    def test_threads(v):
+        return [x * 10 for x in v]
