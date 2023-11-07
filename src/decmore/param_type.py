@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from abc import ABC
 from inspect import signature
-from typing import Any, Callable
-
+from typing import (
+    Any,
+    Callable
+)
 from decmore.default import BaseDecorator
 
 
