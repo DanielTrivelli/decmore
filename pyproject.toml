@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "decmore"
-version = "1.0.2"
+version = "1.1.0"
 authors = [
   {name="Daniel Trivelli", email="drtrivelli@gmail.com"},
 ]
@@ -14,6 +14,9 @@ description = "Useful decorators for your application."
 readme = "README.md"
 license = {file="LICENSE.md"}
 requires-python = ">=3.7"
+dependencies = [
+    "numpy~=1.26.1",
+]
 classifiers = [
    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",

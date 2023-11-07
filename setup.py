@@ -7,6 +7,9 @@ extras_require = {
     ],
 }
 
+install_requires = [
+    "numpy~=1.26.1"
+]
 
 setup(
     name="decmore",
@@ -18,6 +21,7 @@ setup(
     author="Daniel Trivelli",
     author_email="drtrivelli@gmail.com",
     python_requires=">=3.7",
+    install_requires=install_requires,
     extras_require=extras_require,
     include_package_data=True,
     zip_safe=False,

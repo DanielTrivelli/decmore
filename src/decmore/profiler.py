@@ -2,7 +2,10 @@ from abc import ABC
 from cProfile import Profile
 from io import StringIO
 from pstats import Stats
-from typing import Callable, Any
+from typing import (
+    Callable,
+    Any
+)
 from decmore.default import BaseDecorator
 
 
@@ -14,8 +17,13 @@ class Profiler(BaseDecorator, ABC):
             self.disallowed_methods = disallowed_methods
         super(Profiler, self).__init__()
 
-    def wrapper(self, inject: Callable = None, *args: Any, **kwargs: Any) -> Callable:
-        func = self.instance if not inject else inject
+    def wrapper(self, *args: Any, **kwargs: Any) -> Callable:
+        if self.is_class:
+            key = f'{self._instance_id}_inject'
+            func = kwargs[key]
+            del kwargs[key]
+        else:
+            func = self.instance
         pr = Profile()
         pr.enable()
         if args or kwargs:
