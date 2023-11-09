@@ -60,7 +60,7 @@ class ToThreads(BaseDecorator, ABC):
             if isinstance(arg, list) or isinstance(arg, tuple):
                 sl = np.array_split(arg, self.amount)
                 for idx, s in enumerate(sl):
-                    work_thread[idx]['args'].append(s)
+                    work_thread[idx]['args'].append(s.tolist())
             else:
                 for i in range(self.amount):
                     work_thread[i]['args'].append(arg)
@@ -68,7 +68,7 @@ class ToThreads(BaseDecorator, ABC):
             if isinstance(value, list) or isinstance(value, tuple):
                 sl = np.array_split(value, self.amount)
                 for idx, s in enumerate(sl):
-                    work_thread[idx]['kwargs'][key] = sl
+                    work_thread[idx]['kwargs'][key] = s.tolist()
             else:
                 for i in range(self.amount):
                     work_thread[i]['kwargs'][key] = value
@@ -96,6 +96,6 @@ class ToThreads(BaseDecorator, ABC):
             while len(self.__threads_response) < len(self.__threads):
                 continue
             else:
-                response = list(chain.from_iterable(self.__threads_response))
+                response = list(chain(self.__threads_response))
                 self.__delete_threads('all')
                 return response
