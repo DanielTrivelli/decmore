@@ -9,7 +9,7 @@
 project = 'DecMore'
 copyright = '2023, Daniel Trivelli'
 author = 'Daniel Trivelli'
-release = '1.1.1'
+release = '1.1.2'
 
 extensions = [
     'sphinx.ext.duration',
