@@ -27,8 +27,12 @@ class ToThreads(BaseDecorator, ABC):
                 self.__threads_response = []
                 self.__active_threads = []
             else:
-                self.__active_threads.remove(target)
-                del self.__threads[target]
+                if target in self.__active_threads:
+                    self.__active_threads.remove(target)
+                if target in self.__threads:
+                    del self.__threads[target]
+                if target in self.__threads_response:
+                    del self.__threads_response[target]
         except ValueError:
             pass
 
@@ -85,18 +89,17 @@ class ToThreads(BaseDecorator, ABC):
     def __start_threads(self):
         for thread_key, thread in self.__threads.items():
             if thread_key not in self.__active_threads:
-                thread.start()
                 self.__active_threads.append(thread_key)
+                thread.start()
 
     def wrapper(self, *args, **kwargs) -> list[Any] | None:
         self.__set_threads(*args, **kwargs)
+        self.__start_threads()
         if self.return_expected:
-            self.__start_threads()
-            while len(self.__threads_response) < len(self.__threads):
-                continue
+            __this_threads = {} | self.__threads
+            for thread in __this_threads.values():
+                thread.join()
             else:
                 response = list(chain(self.__threads_response))
                 self.__delete_threads('all')
                 return response
-        else:
-            Thread(target=self.__start_threads).start()
